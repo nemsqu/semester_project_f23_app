@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import Constants from "expo-constants";
+const { manifest } = Constants;
+
+
+const uri = `http://${manifest.debuggerHost.split(':').shift()}:3000`;
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -24,6 +29,14 @@ export default function App() {
     setScanned(true);
     setText(data)
     console.log('Type: ' + type + '\nData: ' + data)
+    try{
+      fetch("https://qr-code-server.loca.lt/api/messages").then(response => {
+        console.log("done");
+        console.log(response)
+      });
+    }catch (error){
+      console.log(error)
+    }
   };
 
   // Check permissions and return the screens
