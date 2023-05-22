@@ -30,10 +30,12 @@ export default function App() {
     setText(data)
     console.log('Type: ' + type + '\nData: ' + data)
     try{
-      fetch("https://qr-code-server.loca.lt/api/messages").then(response => {
+      //switch url to your own address created with localtunnel. "test_aau" is the index to be looked for in this case
+      fetch("https://qr-code-server-2.loca.lt/api/messages/test_aau")
+      .then(response => {
         console.log("done");
-        console.log(response)
-      });
+        return response.json()
+      }).then(data => console.log(data));
     }catch (error){
       console.log(error)
     }
