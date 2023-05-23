@@ -2,15 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Constants from "expo-constants";
-const { manifest } = Constants;
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
+const Stack = createStackNavigator();
+
+const { manifest } = Constants;
 
 const uri = `http://${manifest.debuggerHost.split(':').shift()}:3000`;
 
 export default function App() {
+
+  const [recieved, setRecieved] = useState('Not yet scanned');
+
+  function Splash({ navigation }) {
+
+    useEffect(() => {
+      setTimeout(() => {
+          navigation.replace('Home');
+      }, 2000);
+    }, []);
+
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Home screen</Text>
+      </View>
+    );
+  }
+
+  function Home({ navigation }) {
+
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [text, setText] = useState('Not yet scanned')
+  const [text, setText] = useState('Not yet scanned');
 
   const askForCameraPermission = () => {
     (async () => {
@@ -37,7 +61,7 @@ export default function App() {
       .then(response => {
         console.log("done");
         return response.json()
-      }).then(data => console.log(data));
+      }).then(data => {console.log(data), setRecieved(JSON.stringify(data))});
     }catch (error){
       console.log(error)
     }
@@ -58,9 +82,8 @@ export default function App() {
       </View>)
   }
 
-  // Return the View
-  return (
-    <View style={styles.container}>
+    return (
+      <View style={styles.container}>
       <View style={styles.barcodebox}>
         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -68,8 +91,50 @@ export default function App() {
       </View>
       <Text style={styles.maintext}>{text}</Text>
 
-      {scanned && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='tomato' />}
+      {scanned && <Button
+            title="Go to Info"
+            onPress={() => navigation.navigate('Info')}
+          />}
+
+      {scanned && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='white' />}
     </View>
+    )
+  }
+
+  function Info({ navigation }) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Info screen</Text>
+        <Text>{recieved}</Text>
+        <Button title="Go back" onPress={() => navigation.goBack()} />
+      </View>
+    );
+  }
+
+  // Return the View
+  return (
+    <NavigationContainer>
+      <Stack.Navigator 
+        initialRouteName='Splash'
+      >
+        <Stack.Screen
+          name="Splash"
+          component={Splash}
+        />
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{
+            headerTintColor: 'white',
+            headerStyle: { backgroundColor: 'tomato' },
+          }}
+        />
+        <Stack.Screen
+          name="Info"
+          component={Info}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
