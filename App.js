@@ -33,6 +33,7 @@ export default function App() {
       //switch url to your own address created with localtunnel. "test_aau" is the index to be looked for in this case
       //fetch("https://qr-code-server-2.loca.lt/api/messages/test_aau")
       fetch("https://qr-code.loca.lt/api/messages/aau_test_2")
+      //fetch("https://cvrapi.dk/api?search=25313763&country=dk")
       .then(response => {
         console.log("done");
         return response.json()
