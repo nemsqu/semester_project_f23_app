@@ -102,10 +102,20 @@ export default function App() {
   }
 
   function Info({ navigation }) {
+
+    const [js, setJS] = useState([{}]);
+
+    useEffect(() => {
+      //console.log(recieved);
+      const json = JSON.parse(recieved);
+      setJS(json);
+      console.log(json[0].did);
+    }, []);
+
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Info screen</Text>
-        <Text>{recieved}</Text>
+        <Text>{js[0].did}</Text>
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
