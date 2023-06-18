@@ -245,6 +245,9 @@ export default function App() {
       //console.log(json[0].did);
       if(recieved.fetched || recieved.length > 1){
         console.log("Data received");
+        console.log(recieved.length);
+
+        console.log(recieved);
         setLoading(false);
       }
     }, [recieved]);
@@ -283,15 +286,15 @@ export default function App() {
         <Text style={{fontWeight: 'bold', marginBottom: 5}}>Origin</Text>
         <Text style={{marginBottom: 20}}>{js[0].city}</Text>
         <Text style={{fontWeight: 'bold', marginBottom: 10}}>Supply Chain</Text>
-        <ChainInfo name={js[1].name} onClick={() => onClickFarm(js[1])}></ChainInfo>
+        <ChainInfo name={js[0].name} onClick={() => onClickFarm(js[0])}></ChainInfo>
+        <ChainInfo name={js[1].name} onClick={() => onClickTransport(js[1])}></ChainInfo>
+        <ChainInfo name={js[2].name} onClick={() => onClickAbattoir(js[2])}></ChainInfo>
         <ChainInfo name={js[3].name} onClick={() => onClickTransport(js[3])}></ChainInfo>
-        <ChainInfo name={js[4].name} onClick={() => onClickAbattoir(js[4])}></ChainInfo>
+        <ChainInfo name={js[4].name} onClick={() => onClickProcessing(js[4])}></ChainInfo>
         <ChainInfo name={js[5].name} onClick={() => onClickTransport(js[5])}></ChainInfo>
-        <ChainInfo name={js[6].name} onClick={() => onClickProcessing(js[6])}></ChainInfo>
-        <ChainInfo name={js[7].name} onClick={() => onClickTransport(js[7])}></ChainInfo>
-        <ChainInfo name={js[8].name} onClick={() => onClickRetailer(js[8])}></ChainInfo>
+        <ChainInfo name={js[6].name} onClick={() => onClickRetailer(js[6])}></ChainInfo>
         <Text style={{fontWeight: 'bold', marginVertical: 10}}>Total distance travelled</Text>
-        <Text style={{marginBottom: 10}}>{js[3].distance + js[5].distance + js[7].distance}km</Text>
+        <Text style={{marginBottom: 10}}>{js[1].distance + js[3].distance + js[5].distance}km</Text>
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -311,8 +314,8 @@ export default function App() {
           name="Home"
           component={Home}
           options={{
-            headerTintColor: 'white',
-            headerStyle: { backgroundColor: 'tomato' },
+            headerTintColor: 'black',
+            headerStyle: { backgroundColor: 'white' },
           }}
         />
         <Stack.Screen
