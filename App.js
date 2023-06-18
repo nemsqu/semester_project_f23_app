@@ -36,6 +36,7 @@ export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [text, setText] = useState('Not yet scanned');
+  const [fetching, setFetching] = useState(false);
 
   const askForCameraPermission = () => {
     (async () => {
@@ -54,13 +55,17 @@ export default function App() {
     setScanned(true);
     setText(data)
     console.log('Type: ' + type + '\nData: ' + data)
-    const name = data.split("::")[1];
-    const id = data.split("::")[0];
-    console.log("id", data.id)
-    if(!data){
-      
+  };
+
+  const fetchInfo = () => {
+    const name = text.split("::")[1];
+    const id = text.split("::")[0];
+    console.log("data.id", text.id, "name", name)
+    if(!text || fetching){
+      console.log("Nope");
     }else{
       try{
+        setFetching(true);
         console.log("Data here", name, id);
         //switch url to your own address created with localtunnel. "test_aau" is the index to be looked for in this case
         fetch("https://qr-code-server-2.loca.lt/api/messages/" + id)
@@ -70,12 +75,13 @@ export default function App() {
         .then(response => {
           console.log("done");
           return response.json()
-        }).then(data => {console.log(data), setRecieved(data)});
+        }).then(data => {console.log(data), setRecieved(data)})
+        .then(setFetching(false));
       }catch (error){
         console.log(error)
       }
     }
-  };
+  }
 
   // Check permissions and return the screens
   if (hasPermission === null) {
@@ -103,7 +109,9 @@ export default function App() {
 
       {scanned && <Button
             title="Go to Info"
-            onPress={() => navigation.navigate('Info')}
+            onPress={() => {
+              navigation.navigate('Info');
+              fetchInfo();}}
           />}
 
       {scanned && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='white' />}
@@ -230,11 +238,15 @@ export default function App() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-      console.log(recieved);
+      console.log(recieved, recieved.length);
       //const json = JSON.parse(recieved);
       setJS(recieved);
+      console.log("JS", recieved.fetched, recieved.length);
       //console.log(json[0].did);
-      setLoading(false);
+      if(recieved.fetched || recieved.length > 1){
+        console.log("Data received");
+        setLoading(false);
+      }
     }, [recieved]);
 
     const onClickFarm= (actor) => {
@@ -256,7 +268,17 @@ export default function App() {
     };
 
 
-    return (js[1] ?
+    console.log("loading", loading, "fetched", recieved.fetched)
+    return (loading === true ? <>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Fetching information...</Text>
+      </View>
+      </> : recieved.fetched ? <>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>{recieved.error}</Text>
+        <Button title="Try again" onPress={() => navigation.goBack()} />
+      </View>
+      </> :
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{fontWeight: 'bold', marginBottom: 5}}>Origin</Text>
         <Text style={{marginBottom: 20}}>{js[0].city}</Text>
@@ -271,11 +293,7 @@ export default function App() {
         <Text style={{fontWeight: 'bold', marginVertical: 10}}>Total distance travelled</Text>
         <Text style={{marginBottom: 10}}>{js[3].distance + js[5].distance + js[7].distance}km</Text>
         <Button title="Go back" onPress={() => navigation.goBack()} />
-      </View> : <>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Fetching information...</Text>
       </View>
-      </>
     );
   }
 
