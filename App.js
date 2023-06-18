@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button, Image } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, Pressable } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Constants from "expo-constants";
 import { NavigationContainer } from '@react-navigation/native';
@@ -107,14 +107,16 @@ export default function App() {
       </View>
       <Text style={styles.maintext}>{text}</Text>
 
-      {scanned && <Button
-            title="Go to Info"
+      {scanned && <Pressable
+            style={styles.button}
             onPress={() => {
               navigation.navigate('Info');
               fetchInfo();}}
-          />}
+          >
+            <Text style={{color: 'white'}}>Get info</Text>
+            </Pressable>}
 
-      {scanned && <Button title={'Scan again?'} onPress={() => setScanned(false)} color='white' />}
+            {scanned && <Button title={'Scan again?'} onPress={() => {setScanned(false); setText("Not yet scanned");}} color='black' />}
     </View>
     )
   }
@@ -366,5 +368,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 30,
     backgroundColor: 'tomato'
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: '#b642f5',
   }
 });
