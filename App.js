@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button, Image, Pressable } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, Pressable, TouchableOpacity } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Constants from "expo-constants";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import ChainInfo from './components/ChainInfo';
+import Timeline from 'react-native-timeline-flatlist';
 
 const Stack = createStackNavigator();
 
@@ -110,7 +111,7 @@ export default function App() {
       {scanned && <Pressable
             style={styles.button}
             onPress={() => {
-              navigation.navigate('Info');
+              navigation.navigate('Info', {name: text.split("::")[1]});
               fetchInfo();}}
           >
             <Text style={{color: 'white'}}>Get info</Text>
@@ -125,16 +126,16 @@ export default function App() {
     const {actor} = route.params;
     console.log(actor)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company name</Text>
+      <View style={{ flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.sectionTitle}>Company name</Text>
         <Text>{actor.name}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company address</Text>
+        <Text style={styles.sectionTitle}>Company address</Text>
         <Text>{actor.address}, {actor.city}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Feed</Text>
+        <Text style={styles.sectionTitle}>Feed</Text>
         <Text>{actor.feed}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>From {actor.feedorigin}</Text>
+        <Text style={styles.sectionTitle}>From {actor.feedorigin}</Text>
         <Text>{actor.feedorigin}</Text>
-        {actor.cert && <CertificateInfo cert={actor.cert}></CertificateInfo>}
+        {actor.cert && <Certificate cert={actor.cert} navigation={navigation}></Certificate>}
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -144,16 +145,26 @@ export default function App() {
     const {actor} = route.params;
     console.log(actor)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company name</Text>
+      <View style={{ flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.sectionTitle}>Company name</Text>
         <Text>{actor.name}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company address</Text>
+        <Text style={styles.sectionTitle}>Company address</Text>
         <Text>{actor.address}, {actor.city}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Transportation method</Text>
+        <Text style={styles.sectionTitle}>Transportation method</Text>
         <Text>{actor.method}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Distance {actor.feedorigin}</Text>
+        <Text style={styles.sectionTitle}>Distance {actor.feedorigin}</Text>
         <Text>{actor.distance}</Text>
-        {actor.cert && <CertificateInfo cert={actor.cert}></CertificateInfo>}
+        {actor.cert && <View style={{marginTop: 20 }} >
+          <Text style={styles.sectionTitle}>Certificate</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
+            <Image style={{width: 40, height: 40}}
+              source={{
+                uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
+              }}
+            />  
+          </TouchableOpacity>
+        </View>
+        }
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -163,14 +174,14 @@ export default function App() {
     const {actor} = route.params;
     console.log(actor)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company name</Text>
+      <View style={{ flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.sectionTitle}>Company name</Text>
         <Text>{actor.name}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company address</Text>
+        <Text style={styles.sectionTitle}>Company address</Text>
         <Text>{actor.address}, {actor.city}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Slaughter method</Text>
+        <Text style={styles.sectionTitle}>Slaughter method</Text>
         <Text>{actor.method}</Text>
-        {actor.cert && <CertificateInfo cert={actor.cert}></CertificateInfo>}
+        {actor.cert && <Certificate cert={actor.cert} navigation={navigation}></Certificate>}
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -180,14 +191,14 @@ export default function App() {
     const {actor} = route.params;
     console.log(actor)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company name</Text>
+      <View style={{ flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.sectionTitle}>Company name</Text>
         <Text>{actor.name}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company address</Text>
+        <Text style={styles.sectionTitle}>Company address</Text>
         <Text>{actor.address}, {actor.city}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Packaging material</Text>
+        <Text style={styles.sectionTitle}>Packaging material</Text>
         <Text>{actor.packaging}</Text>
-        {actor.cert && <CertificateInfo cert={actor.cert}></CertificateInfo>}
+        {actor.cert && <Certificate cert={actor.cert} navigation={navigation}></Certificate>}
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -197,47 +208,72 @@ export default function App() {
     const {actor} = route.params;
     console.log(actor)
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company name</Text>
+      <View style={{ flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.sectionTitle}>Company name</Text>
         <Text>{actor.name}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Company address</Text>
+        <Text style={styles.sectionTitle}>Company address</Text>
         <Text>{actor.address}, {actor.city}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Packaging material</Text>
+        <Text style={styles.sectionTitle}>Packaging material</Text>
         <Text>{actor.packaging}</Text>
-        {actor.cert && <CertificateInfo cert={actor.cert}></CertificateInfo>}
+        {actor.cert && <View style={{marginTop: 20 }} >
+          <Text style={styles.sectionTitle}>Certificate</Text>
+          <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
+            <Image style={{width: 40, height: 40}}
+              source={{
+                uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
+              }}
+            />  
+          </Pressable>
+        </View>
+        }
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
   }
 
-  function CertificateInfo({cert}){
+  function Certificate({cert, navigation}){
+    return <View style={{marginTop: 20 }} >
+      <Text style={styles.sectionTitle}>Certificate</Text>
+      <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: cert})}>
+        <Image style={{width: 40, height: 40}}
+          source={{
+            uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
+          }}
+        />  
+      </Pressable>
+    </View>
+  }
+
+  function CertificateInfo({route, navigation}){
+    const {cert} = route.params;
     return (
-      <View style={{justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 15, marginTop: 30}}>Certificate</Text>
+      <View style={{flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.mainTitle}>Certificate Name</Text>
         <Image
         style={{width: 40, height: 40}}
         source={{
           uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
         }}
       />
-        <Text style={{fontWeight: 'bold', marginBottom: 10}}>Category</Text>
+        <Text style={styles.sectionTitle}>Category</Text>
         <Text>{cert.product_category}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 10}}>Valid until</Text>
+        <Text style={styles.sectionTitle}>Valid until</Text>
         <Text>{cert.Valid_until}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 10}}>Date of inspection</Text>
+        <Text style={styles.sectionTitle}>Date of inspection</Text>
         <Text>{cert.Date_of_annual_inspection}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 10}}>Date of issuing</Text>
+        <Text style={styles.sectionTitle}>Date of issuing</Text>
         <Text>{cert.Date_of_issuing}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 10}}>Place of issuing</Text>
+        <Text style={styles.sectionTitle}>Place of issuing</Text>
         <Text>{cert.Place_of_issuing}</Text>
       </View>
     );
   }
 
-  function Info({ navigation }) {
+  function Info({ navigation , route}) {
 
     const [js, setJS] = useState([{}]);
     const [loading, setLoading] = useState(true);
+    const {name} = route.params;
 
     useEffect(() => {
       console.log(recieved, recieved.length);
@@ -272,6 +308,42 @@ export default function App() {
       navigation.navigate('Retailer Info', {actor: actor});
     };
 
+    const formatDate = (date) => {
+      console.log(date)
+      const dd = date.getDate();
+      const mm = date.getMonth();
+      const yyyy = date.getFullYear();
+      const result = `${dd}.${mm}.${yyyy}`;
+      return result;
+    }
+
+    const onEventPressed = (e) => {
+      if(e.index === 0){
+        onClickFarm(js[e.index]);
+      }else if(e.index === 2){
+        onClickAbattoir(js[e.index]);
+      }else if(e.index === 4){
+        onClickProcessing(js[e.index]);
+      }else if(e.index === 6){
+        onClickRetailer(js[e.index]);
+      }else if(e.index === 1 || e.index === 3 || e.index === 5){
+        onClickTransport(js[e.index]);
+      }else{
+        //should never happen, do nothing
+      }
+    }
+
+    const getData = () => {
+      return ([
+      {time: formatDate(new Date(js[0].recordTime)), title: js[0].name, description: "Farm", index: 0},
+      {time: formatDate(new Date(js[1].recordTime)), title: js[1].name, description: "Transportation", index: 1},
+      {time: formatDate(new Date(js[2].recordTime)), title: js[2].name, description: "Abattoir", index: 2},
+      {time: formatDate(new Date(js[3].recordTime)), title: js[3].name, description: "Transportation", index: 3},
+      {time: formatDate(new Date(js[4].recordTime)), title: js[4].name, description: "Processing", index: 4},
+      {time: formatDate(new Date(js[5].recordTime)), title: js[5].name, description: "Transportation", index: 5},
+      {time: formatDate(new Date(js[6].recordTime)), title: js[6].name, description: "Retailer", index: 6}
+    ])}
+
 
     console.log("loading", loading, "fetched", recieved.fetched)
     return (loading === true ? <>
@@ -284,19 +356,14 @@ export default function App() {
         <Button title="Try again" onPress={() => navigation.goBack()} />
       </View>
       </> :
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold', marginBottom: 5}}>Origin</Text>
+      <View style={{ flex: 1, marginHorizontal: 10}}>
+        <Text style={styles.mainTitle}>{name}</Text>
+        <Text style={styles.sectionTitle}>Origin</Text>
         <Text style={{marginBottom: 20}}>{js[0].city}</Text>
-        <Text style={{fontWeight: 'bold', marginBottom: 10}}>Supply Chain</Text>
-        <ChainInfo name={js[0].name} onClick={() => onClickFarm(js[0])}></ChainInfo>
-        <ChainInfo name={js[1].name} onClick={() => onClickTransport(js[1])}></ChainInfo>
-        <ChainInfo name={js[2].name} onClick={() => onClickAbattoir(js[2])}></ChainInfo>
-        <ChainInfo name={js[3].name} onClick={() => onClickTransport(js[3])}></ChainInfo>
-        <ChainInfo name={js[4].name} onClick={() => onClickProcessing(js[4])}></ChainInfo>
-        <ChainInfo name={js[5].name} onClick={() => onClickTransport(js[5])}></ChainInfo>
-        <ChainInfo name={js[6].name} onClick={() => onClickRetailer(js[6])}></ChainInfo>
-        <Text style={{fontWeight: 'bold', marginVertical: 10}}>Total distance travelled</Text>
+        <Text style={styles.sectionTitle}>Total distance travelled</Text>
         <Text style={{marginBottom: 10}}>{js[1].distance + js[3].distance + js[5].distance}km</Text>
+        <Text style={styles.sectionTitle}>Supply Chain</Text>
+        <Timeline data={getData()} style={{width: '100%'}} onEventPress={onEventPressed}/>
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -344,6 +411,10 @@ export default function App() {
           name="Retailer Info"
           component={RetailerInfo}
         />
+        <Stack.Screen
+          name="Certificate Info"
+          component={CertificateInfo}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -377,5 +448,15 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     elevation: 3,
     backgroundColor: '#b642f5',
+  },
+  mainTitle: {
+    fontWeight: 'bold', 
+    marginBottom: 15, 
+    fontSize: 30
+  },
+  sectionTitle: {
+    fontWeight: 'bold', 
+    marginVertical: 10, 
+    fontSize: 20
   }
 });
