@@ -69,7 +69,7 @@ export default function App() {
         setFetching(true);
         console.log("Data here", name, id);
         //switch url to your own address created with localtunnel. "test_aau" is the index to be looked for in this case
-        fetch("https://qr-code-server-2.loca.lt/api/messages/" + id)
+        fetch("https://qr-code.loca.lt/api/messages/" + id)
         //fetch("https://qr-code-server-2.loca.lt/api/messages/test_aau")
         //fetch("https://qr-code.loca.lt/api/messages/aau_test_2")
         //fetch("https://cvrapi.dk/api?search=25313763&country=dk")
@@ -133,7 +133,7 @@ export default function App() {
         <Text>{actor.address}, {actor.city}</Text>
         <Text style={styles.sectionTitle}>Feed</Text>
         <Text>{actor.feed}</Text>
-        <Text style={styles.sectionTitle}>From {actor.feedorigin}</Text>
+        <Text style={styles.sectionTitle}>Feed from </Text>
         <Text>{actor.feedorigin}</Text>
         {actor.cert && <View style={{marginTop: 20 }} >
           <Text style={styles.sectionTitle}>Certificate</Text>
@@ -371,7 +371,7 @@ export default function App() {
       </> : recieved.fetched ? <>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>{recieved.error}</Text>
-        <Button title="Try again" onPress={() => navigation.goBack()} />
+        <Button title="Try again" onPress={() => {setRecieved({}); navigation.goBack();}} />
       </View>
       </> :
       <View style={{ flex: 1, marginHorizontal: 10}}>
@@ -382,7 +382,7 @@ export default function App() {
         <Text style={{marginBottom: 10}}>{js[1].distance + js[3].distance + js[5].distance}km</Text>
         <Text style={styles.sectionTitle}>Supply Chain</Text>
         <Timeline data={getData()} style={{width: '100%'}} onEventPress={onEventPressed}/>
-        <Button title="Go back" onPress={() => navigation.goBack()} />
+        <Button title="Go back" onPress={() => {setRecieved({}); navigation.goBack();}} />
       </View>
     );
   }
