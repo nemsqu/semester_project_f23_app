@@ -135,7 +135,17 @@ export default function App() {
         <Text>{actor.feed}</Text>
         <Text style={styles.sectionTitle}>From {actor.feedorigin}</Text>
         <Text>{actor.feedorigin}</Text>
-        {actor.cert && <Certificate cert={actor.cert} navigation={navigation}></Certificate>}
+        {actor.cert && <View style={{marginTop: 20 }} >
+          <Text style={styles.sectionTitle}>Certificate</Text>
+          <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
+            <Image style={{width: 40, height: 40}}
+              source={{
+                uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
+              }}
+            />  
+          </Pressable>
+        </View>
+        }
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -156,13 +166,13 @@ export default function App() {
         <Text>{actor.distance}</Text>
         {actor.cert && <View style={{marginTop: 20 }} >
           <Text style={styles.sectionTitle}>Certificate</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
+          <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
             <Image style={{width: 40, height: 40}}
               source={{
                 uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
               }}
             />  
-          </TouchableOpacity>
+          </Pressable>
         </View>
         }
         <Button title="Go back" onPress={() => navigation.goBack()} />
@@ -181,7 +191,17 @@ export default function App() {
         <Text>{actor.address}, {actor.city}</Text>
         <Text style={styles.sectionTitle}>Slaughter method</Text>
         <Text>{actor.method}</Text>
-        {actor.cert && <Certificate cert={actor.cert} navigation={navigation}></Certificate>}
+        {actor.cert && <View style={{marginTop: 20 }} >
+          <Text style={styles.sectionTitle}>Certificate</Text>
+          <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
+            <Image style={{width: 40, height: 40}}
+              source={{
+                uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
+              }}
+            />  
+          </Pressable>
+        </View>
+        }
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -198,7 +218,17 @@ export default function App() {
         <Text>{actor.address}, {actor.city}</Text>
         <Text style={styles.sectionTitle}>Packaging material</Text>
         <Text>{actor.packaging}</Text>
-        {actor.cert && <Certificate cert={actor.cert} navigation={navigation}></Certificate>}
+        {actor.cert && <View style={{marginTop: 20 }} >
+          <Text style={styles.sectionTitle}>Certificate</Text>
+          <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: actor.cert})}>
+            <Image style={{width: 40, height: 40}}
+              source={{
+                uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
+              }}
+            />  
+          </Pressable>
+        </View>
+        }
         <Button title="Go back" onPress={() => navigation.goBack()} />
       </View>
     );
@@ -231,18 +261,6 @@ export default function App() {
     );
   }
 
-  function Certificate({cert, navigation}){
-    return <View style={{marginTop: 20 }} >
-      <Text style={styles.sectionTitle}>Certificate</Text>
-      <Pressable onPress={() => navigation.navigate('Certificate Info', {cert: cert})}>
-        <Image style={{width: 40, height: 40}}
-          source={{
-            uri: 'https://qr-code-server-2.loca.lt/certified.jpg',
-          }}
-        />  
-      </Pressable>
-    </View>
-  }
 
   function CertificateInfo({route, navigation}){
     const {cert} = route.params;
