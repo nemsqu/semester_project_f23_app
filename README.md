@@ -1,3 +1,3 @@
-# QrScan
+# EcoScanner
 
-This is a simple mobile application on QR code scanning functionality. It is made using react native and expo go. It is a part of the ongoing semester project (2023) at AAU.
+This is a simple mobile application with the possibility to scan QR codes to view information about clothing items. Part of semester project for fall 2023.
