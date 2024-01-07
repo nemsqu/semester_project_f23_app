@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Text, View, StyleSheet, Button, Image, Pressable, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,16 +9,21 @@ import { Account } from './screens/Account';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faInbox, faQrcode, faUser } from '@fortawesome/free-solid-svg-icons';
 import { Home } from './screens/Home';
-import { FetchInfo } from './screens/FetchInfo';
+import { FetchInfo } from './components/FetchInfo';
 import { MessageChain } from './screens/MessageChain';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AuthContextProvider, useUser } from './Contexts';
+import { CreateAccount } from './screens/CreateAccount';
+import { AuthContext, AuthProvider } from './Contexts';
+import { ProductInfo } from './screens/ProductInfo';
+import { Provider } from 'react-redux';
+import { Store } from './redux/store';
 
 const rootStack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();
 
 const Stack = createStackNavigator();
+const MsgStack = createStackNavigator();
 
 function ScanFlow() {
   return(
@@ -33,10 +38,35 @@ function ScanFlow() {
         />
         <Stack.Screen
           name="Info"
-          component={FetchInfo}
+          component={ProductInfo}
           options={{
             headerTintColor: 'black',
             headerStyle: { backgroundColor: 'white' },
+          }}
+        />
+    </Stack.Navigator>
+  )
+}
+
+function AccountStack() {
+  return(
+    <Stack.Navigator>
+      <Stack.Screen
+          name={'AccountStart'} 
+          component={Account} 
+          options={{
+            headerTintColor: 'black',
+            headerStyle: { backgroundColor: 'white' },
+            title: 'Account'
+          }}
+        />
+        <Stack.Screen
+          name={'Create'} 
+          component={CreateAccount} 
+          options={{
+            headerTintColor: 'black',
+            headerStyle: { backgroundColor: 'white' },
+            title: 'Create account'
           }}
         />
     </Stack.Navigator>
@@ -45,82 +75,30 @@ function ScanFlow() {
 
 function MessageStack() {
   return(
-    <Stack.Navigator>
-      <Stack.Screen
+    <MsgStack.Navigator>
+      <MsgStack.Screen
           name="Messages"
           component={Messages}
-          options={{
-            headerTintColor: 'black',
-            headerStyle: { backgroundColor: 'white' },
-          }}
-        />
-        <Stack.Screen
-          name="MessageChain"
-          component={MessageChain}
           options={{
             headerTintColor: 'black',
             headerStyle: { backgroundColor: 'white' },
             title: 'Messages'
           }}
         />
-    </Stack.Navigator>
+        <MsgStack.Screen
+          name="MessageChain"
+          component={MessageChain}
+          options={{
+            headerTintColor: 'black',
+            headerStyle: { backgroundColor: 'white' },
+          }}
+        />
+    </MsgStack.Navigator>
   )
 }
 
-function BottomTabs() {
-  return (
-    <Tab.Navigator
-    screenOptions={
-      ({route}) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === 'ScanFlow') {
-            iconName = faQrcode;
-            size = focused ? 25: 20;
-          } else if (route.name === 'MessageStack') {
-            iconName = faInbox;
-            size = focused ? 25: 20;
-          } else {
-            iconName = faUser;
-            size = focused ? 25: 20;
-          }
-          return(
-            <FontAwesomeIcon icon={iconName} size={size} color={color} />
-          );
-        },
-        tabBarActiveTintColor: '#0080ff',
-        tabBarInactiveTintColor: '#777777',
-      })
-    }
-    >
-      <Tab.Screen
-        name={'ScanFlow'} 
-        component={ScanFlow} 
-        options = {{
-          headerShown: false,
-        }}
-      />
-      {useUser ?? <Tab.Screen 
-        name={'MessageStack'} 
-        component={MessageStack} 
-        options={{
-          headerShown: false,
-        }}
-      />}
-      <Tab.Screen 
-        name={'Account'} 
-        component={Account} 
-        options={{
-          headerTintColor: 'black',
-          headerStyle: { backgroundColor: 'white' },
-        }}
-      />
-    </Tab.Navigator>
-  )
-}
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(null);
 
   function Splash({ navigation }) {
 
@@ -131,38 +109,93 @@ export default function App() {
     }, []);
     
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>Home screen</Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+          <Image style={{width: 250, height: 300}} source={require('./images/logo.png')} />
         </View>
     );
   }
 
+  function BottomTabs() {
+    const { auth } = useContext(AuthContext);
+    return (
+      <Tab.Navigator
+      screenOptions={
+        ({route}) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            if (route.name === 'Scan') {
+              iconName = faQrcode;
+              size = focused ? 25: 20;
+            } else if (route.name === 'Inbox') {
+              iconName = faInbox;
+              size = focused ? 25: 20;
+            } else {
+              iconName = faUser;
+              size = focused ? 25: 20;
+            }
+            return(
+              <FontAwesomeIcon icon={iconName} size={size} color={color} />
+            );
+          },
+          tabBarActiveTintColor: '#0080ff',
+          tabBarInactiveTintColor: '#777777',
+        })
+      }
+      >
+        <Tab.Screen
+          name={'Scan'} 
+          component={ScanFlow} 
+          options = {{
+            headerShown: false
+          }}
+        />
+        {auth && <Tab.Screen 
+          name={'Inbox'} 
+          component={MessageStack} 
+          options={{
+            headerShown: false
+          }}
+        />}
+        <Tab.Screen 
+          name={'Account'} 
+          component={AccountStack} 
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Tab.Navigator>
+    )
+  }
+  
+
   // Return the View
   return (
-    <AuthContextProvider >
-      <SafeAreaView style={{ flex: 1}}>
-        <NavigationContainer>
-          <rootStack.Navigator 
-            initialRouteName='App Name'
-          >
-            <rootStack.Screen 
-              name="BottomTabs"
-              component={BottomTabs}
-              options = {{
-                headerShown: false,
-              }}
-            />
-            <rootStack.Screen
-              name="App Name"
-              component={Splash}
-              options = {{
-                headerShown: false,
-              }}
-            />
-          </rootStack.Navigator>
-        </NavigationContainer>
-      </SafeAreaView>
-    </AuthContextProvider>
+    <Provider store={Store}>
+      <AuthProvider >
+        <SafeAreaView style={{ flex: 1}}>
+          <NavigationContainer>
+            <rootStack.Navigator 
+              initialRouteName='App Name'
+            >
+              <rootStack.Screen 
+                name="BottomTabs"
+                component={BottomTabs}
+                options = {{
+                  headerShown: false,
+                }}
+              />
+              <rootStack.Screen
+                name="App Name"
+                component={Splash}
+                options = {{
+                  headerShown: false,
+                }}
+              />
+            </rootStack.Navigator>
+          </NavigationContainer>
+        </SafeAreaView>
+      </AuthProvider>
+    </Provider>
   );
 }
 

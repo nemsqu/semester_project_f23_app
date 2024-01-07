@@ -1,33 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, CheckBox, Overlay } from '@rneui/themed';
 import { KeyboardAvoidingView, Pressable, ScrollView, Text, TextInput, View, Platform } from 'react-native';
 import { styles } from '../styles/Styles';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faPerson, faCircleUser, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
+import { AuthContext } from '../Contexts';
 
-const messages = [{"id": 1, "chainId": 1, "sender": "Jane Doe", "senderId": 1, "message": "ok", "photo": "null", "read": true},
-{"id": 2, "chainId": 1,"sender": "Jane Doe", "senderId": 1, "message": "I don't know I mean it could work but it might not.", "photo": "asd", "read": false},
-{"id": 3, "chainId": 1,"sender": "Jane Doe", "senderId": 2, "message": "ok", "photo": null, "read": false}]
-
-export function MessageChain({navigation}){
+export function MessageChain({navigation, route}){
+    const {user} = useContext(AuthContext);
     const [text, setText] = useState("");
-    const loggedInUser = 1;
+    const {messages, sender, senderId, chainId} = route.params;
+    const [messagesState, setMessagesState] = useState(messages);
+
     const sendMessage = () => {
-        messages.push({"id": 4, "chainId": 1,"sender": "Jane Doe", "senderId": 1, "message": text, "photo": null, "read": false})
+        const inputs = {"message": text, "sender": user._id, "senderName": user.name, "receiver": senderId, "receiverName": sender, "chainId": chainId}
+        try{
+            fetch("http://192.168.1.36:3000/api/message/new", {
+              method: "POST",
+              headers: {
+                "Content-type": "application/json"
+              },
+              body: JSON.stringify(inputs),
+          })
+            .then(response => {
+              return response.json()
+            })
+            .then((data) => {
+                setMessagesState([...messagesState, data.message])
+            });
+          } catch (error){
+            console.log(error)
+          }
         setText("");
     };
 
     useEffect(() => {
-        navigation.setOptions({title: 'Jane Doe'}) //change to sender
+        navigation.setOptions({title: sender}) //change to sender
     },[])
 
     return(
         <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={90}>
             <ScrollView contentContainerStyle={{justifyContent: 'space-between', width: "100%"}}>
-                {messages.map((message) => {
-                    if(message.chainId === 1){
-                        return(<Message key={message.id} sender={message.sender} message={message.message} photo={message.photo} loggedInUser={loggedInUser} senderId={message.senderId}/>)
-                    }
+                {messagesState.map((message) => {
+                        return(<Message key={message._id} sender={message.sender} message={message.message} user={user}/>)
                 })}
             </ScrollView>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignContent: 'baseline', height: 50, marginBottom: 10}}>
@@ -40,10 +55,11 @@ export function MessageChain({navigation}){
     )
 }
 
-function Message({sender, message, photo, loggedInUser, senderId}){
+function Message({sender, message, user}){
+
     return(
-        <View style={senderId === loggedInUser ? styles.sent : styles.received}>
-            <View style={senderId === loggedInUser ? styles.sentMessage : styles.receivedMessage}>
+        <View style={sender === user._id ? styles.sent : styles.received}>
+            <View style={sender === user._id ? styles.sentMessage : styles.receivedMessage}>
                 <Text >{message}</Text>
             </View>
         </View>

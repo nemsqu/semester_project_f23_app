@@ -3,18 +3,15 @@ import { Button, Overlay } from '@rneui/themed';
 import { Text } from 'react-native';
 import { styles } from '../styles/Styles';
 
-export function InfoOverlay({visible, setVisible}){
+export function InfoOverlay({visible, setVisible, content, title}){
     const toggleOverlay = () => {
         setVisible(!visible);
     };
 
-    const title = "Title here";
-    const bodyText = "Whatever information is needed will go here"
-
     return (
-          <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+          <Overlay isVisible={visible} onBackdropPress={toggleOverlay} overlayStyle={{width: "80%"}}>
             <Text style={styles.sectionTitle}>{title}</Text>
-            <Text style={styles.maintext}>{bodyText}</Text>
+            <Text style={styles.maintext}>{content.length > 0 ? content : "No information has been provided for this product."}</Text>
           </Overlay>
       );
 }

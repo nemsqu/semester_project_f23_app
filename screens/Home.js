@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, Button, Image, Pressable, TouchableOpacity } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { styles } from '../styles/Styles';
+import { FetchInfo } from '../components/FetchInfo';
+import { setScanned } from '../redux/actions';
+import { useDispatch, useSelector } from "react-redux";
 
 export function Home({ navigation }) {
 
-    const [recieved, setRecieved] = useState({});
+  const { scanned } = useSelector(state => state.scanReducer);
+    const dispatch = useDispatch();
+    const [recieved, setRecieved] = useState(null);
     const [hasPermission, setHasPermission] = useState(null);
-    const [scanned, setScanned] = useState(false);
     const [text, setText] = useState('Not yet scanned');
     const [fetching, setFetching] = useState(false);
   
@@ -21,30 +25,27 @@ export function Home({ navigation }) {
     // Request Camera Permission
     useEffect(() => {
       askForCameraPermission();
+      dispatch(setScanned(false));
     }, []);
   
     // What happens when we scan the bar code
     const handleBarCodeScanned = ({ type, data }) => {
-      setScanned(true);
+      dispatch(setScanned(true));
       setText(data)
-      console.log('Type: ' + type + '\nData: ' + data)
+      fetchInfo()
     };
   
     const fetchInfo = () => {
-      console.log("data", text)
       if(!text || fetching){
         console.log("Nope");
       }else{
         try{
           setFetching(true);
-          console.log("Data here", text);
-          //switch url to your own address created with localtunnel. "test_aau" is the index to be looked for in this case
-          //fetch("https://qr-code.loca.lt/api/messages/" + text)
-          fetch("http://192.168.1.36:3000/api/" + text)
+          fetch("http://192.168.1.36:3000/api/product/" + text)
           .then(response => {
-            console.log("done");
             return response.json()
-          }).then(data => {console.log(data), setRecieved(data)})
+          })
+          .then(data => {console.log(data), setRecieved(data)})
           .then(setFetching(false));
         }catch (error){
           console.log(error)
@@ -69,23 +70,11 @@ export function Home({ navigation }) {
   
       return (
         <View style={styles.container}>
-        <View style={styles.barcodebox}>
-          <BarCodeScanner
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-            style={{ height: 400, width: 400 }} />
-        </View>
-        <Text style={styles.maintext}>{text}</Text>
-  
-        {scanned && <Pressable
-              style={styles.button}
-              onPress={() => {
-                navigation.navigate('Info', {recieved: recieved,});
-                fetchInfo();}}
-            >
-              <Text style={{color: 'white'}}>Get info</Text>
-              </Pressable>}
-  
-              {scanned && <Button title={'Scan again?'} onPress={() => {setScanned(false); setText("Not yet scanned");}} color='black' />}
+          {scanned ? <FetchInfo text={text} navigation={navigation} /> : <View style={styles.barcodebox}>
+            <BarCodeScanner
+              onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+              style={{ height: 400, width: 400 }} />
+          </View>}
       </View>
       )
     }

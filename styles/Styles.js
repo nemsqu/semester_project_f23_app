@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
       borderRadius: 4,
       elevation: 3,
       marginVertical: 5,
-      borderColor: 'rgba(78, 116, 289, 1)'
+      borderColor: 'rgba(78, 116, 289, 1)',
     },
     mainTitle: {
       fontWeight: 'bold', 
@@ -99,5 +99,11 @@ export const styles = StyleSheet.create({
     },
     error: {
         color: 'red'
+    },
+    profile: {
+      marginTop: 100
+    },
+    editableProfile: {
+      marginTop: 50
     }
   });
