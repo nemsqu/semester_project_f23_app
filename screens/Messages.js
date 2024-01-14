@@ -36,7 +36,7 @@ export function Messages({navigation}){
             messageChains.forEach((messageChain) => {
                 msgChains.push({"id": messageChain._id, "sender": messageChain.sender, "receiverName": messageChain.receiverName, "senderName": messageChain.senderName, "receiver": messageChain.receiver, "messages": []});
             })
-            messages.map((message) => {
+            messages.forEach((message) => {
                 const index = msgChains.findIndex((x) => x.id === message.chainId);
                 msgChains[index].messages.push(message);
             })
@@ -52,8 +52,8 @@ export function Messages({navigation}){
                 </Pressable>
             </View>
             <ScrollView style={{width: "90%", paddingBottom: 50}}>
-                {finalMessages ? finalMessages.map((chain) => {
-                    return(<Message key={chain.id} chain={chain} navigation={navigation} user={user} />)
+                {(finalMessages && finalMessages.length > 0) ? finalMessages.map((chain) => {
+                    return(<Message key={chain.id} chain={chain} navigation={navigation} user={user}/>)
                 }) : <Text>No messages yet.</Text>}
             </ScrollView>
         </View>
@@ -61,24 +61,52 @@ export function Messages({navigation}){
 }
 
 function Message({chain, navigation, user}){
-    const lastMessageSent = chain.messages[chain.messages.length-1].sender === user._id;
-    const lastMessageRead = chain.messages[chain.messages.length-1].read;
-    const read = lastMessageSent || lastMessageRead;
-    const recipient = chain.sender === user._id ? chain.receiverName : chain.senderName;
-    const recipientId = chain.sender === user._id ? chain.receiver : chain.sender;
+    const [lastMessageSent, setLastMessageSent] = useState(false);
+    const [lastMessageRead, setLastMessageRead] = useState(false);
+    const [lastMessage, setLastMessage] = useState(null);
+    const [read, setRead] = useState(false);
+    const [recipient, setRecipient] = useState(null);
+    const [recipientId, setRecipientId] = useState(null);
 
-    const openMessage = () => {
-        navigation.navigate('MessageChain', {messages: chain.messages, sender: recipient, senderId: recipientId, chainId: chain.id});
+    useEffect(() => {
+        if(chain.messages.length > 0){
+            setLastMessageSent(chain.messages[chain.messages.length-1].sender === user._id);
+            console.log("last message sent", chain.messages[chain.messages.length-1].sender === user._id)
+            setLastMessageRead(chain.messages[chain.messages.length-1].read);
+            console.log("last message read", chain.messages[chain.messages.length-1].read);
+            setLastMessage(chain.messages[chain.messages.length-1].message);
+            setRead(chain.messages[chain.messages.length-1].sender === user._id || chain.messages[chain.messages.length-1].read);
+            setRecipient(chain.sender === user._id ? chain.receiverName : chain.senderName);
+            setRecipientId(chain.sender === user._id ? chain.receiver : chain.sender);
+        }
+    }, [chain, user])
+
+    const markAsRead = () => {
+        fetch("http://192.168.1.36:3000/api/message/" + chain.messages[chain.messages.length-1]._id + "/read")
+            .then(response => response.json())
+            .then(data => {
+                if(!data.error){
+                    console.log(data)
+                } else {
+                    console.log(data.error);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
-
+    const openMessage = () => {
+        markAsRead();
+        navigation.navigate('MessageChain', {messages: chain.messages, sender: recipient, senderId: recipientId, chainId: chain.id});
+    }
     
     return(
         <View>
             <Pressable style={{borderColor: 'black', borderBottomWidth: 1, justifyContent: 'space-between', marginVertical: 5, padding: 5, height: 50}} onPress={openMessage}>
                 <View style={{flex: 1, flexDirection: 'row', alignContent: 'center', justifyContent: 'space-between', marginBottom: 5, width: "90%", alignItems: 'center'}}>
                     <Text style={read ? styles.read : styles.unread} numberOfLines={1}>{recipient}</Text>
-                    <Text style={read ? styles.read : styles.unread} numberOfLines={1} ellipsizeMode="tail">{chain.messages[chain.messages.length-1].message}</Text>
+                    <Text style={read ? styles.read : styles.unread} numberOfLines={1} ellipsizeMode="tail">{lastMessage ?? ""}</Text>
                 </View>
             </Pressable>
         </View>
